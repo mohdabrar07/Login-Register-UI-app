@@ -13,6 +13,7 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState
     extends State<RegisterScreen> {
+  final _formKey = GlobalKey<FormState>();
 
   final nameController = TextEditingController();
 
@@ -41,7 +42,11 @@ class _RegisterScreenState
           child: Padding(
             padding: const EdgeInsets.all(20),
 
-            child: Column(
+            child: Form(
+  key: _formKey,
+
+  child: Column(
+              
 
               children: [
 
@@ -58,10 +63,23 @@ class _RegisterScreenState
                 const SizedBox(height: 30),
 
                 CustomTextField(
-                  controller: nameController,
-                  hintText: 'Name',
-                  icon: Icons.person,
-                ),
+                controller: nameController,
+                hintText: 'Name',
+                icon: Icons.person,
+
+                validator: (value) {
+
+                  if (value == null || value.isEmpty) {
+                    return 'Name required';
+                  }
+
+                  if (RegExp(r'[0-9]').hasMatch(value)) {
+                    return 'Name cannot contain numbers';
+                  }
+
+                  return null;
+                },
+              ),
 
                 const SizedBox(height: 20),
 
@@ -69,14 +87,43 @@ class _RegisterScreenState
                   controller: emailController,
                   hintText: 'Email',
                   icon: Icons.email,
+
+                  validator: (value) {
+
+                    if (value == null || value.isEmpty) {
+                      return 'Email required';
+                    }
+
+                    if (!value.contains('@') ||
+                        !value.contains('.')) {
+                      return 'Enter valid email';
+                    }
+
+                    return null;
+                  },
                 ),
 
                 const SizedBox(height: 20),
 
                 CustomTextField(
                   controller: phoneController,
-                  hintText: 'Phone',
+                  hintText: 'Phone Number',
                   icon: Icons.phone,
+
+                  validator: (value) {
+
+                    if (value == null || value.isEmpty) {
+                      return 'Phone required';
+                    }
+
+                    if (!RegExp(r'^[0-9]{10}$')
+                        .hasMatch(value)) {
+
+                      return 'Enter valid 10 digit number';
+                    }
+
+                    return null;
+                  },
                 ),
 
                 const SizedBox(height: 20),
@@ -86,6 +133,19 @@ class _RegisterScreenState
                   hintText: 'Password',
                   icon: Icons.lock,
                   obscureText: isPasswordHidden,
+
+                  validator: (value) {
+
+                    if (value == null || value.isEmpty) {
+                      return 'Password required';
+                    }
+
+                    if (value.length < 6) {
+                      return 'Minimum 6 characters';
+                    }
+
+                    return null;
+                  },
 
                   suffixIcon: IconButton(
 
@@ -109,31 +169,36 @@ class _RegisterScreenState
                 const SizedBox(height: 20),
 
                 CustomTextField(
-                  controller:
-                      confirmPasswordController,
-
+                  controller: confirmPasswordController,
                   hintText: 'Confirm Password',
-
                   icon: Icons.lock,
+                  obscureText: isConfirmPasswordHidden,
 
-                  obscureText:
-                      isConfirmPasswordHidden,
+                  validator: (value) {
+
+                    if (value == null || value.isEmpty) {
+                      return 'Confirm your password';
+                    }
+
+                    if (value != passwordController.text) {
+                      return 'Passwords do not match';
+                    }
+
+                    return null;
+                  },
 
                   suffixIcon: IconButton(
 
                     onPressed: () {
 
                       setState(() {
-
                         isConfirmPasswordHidden =
                             !isConfirmPasswordHidden;
-
                       });
 
                     },
 
                     icon: Icon(
-
                       isConfirmPasswordHidden
                           ? Icons.visibility_off
                           : Icons.visibility,
@@ -145,7 +210,20 @@ class _RegisterScreenState
 
                 CustomButton(
                   text: 'Register',
-                  onPressed: () {},
+                  onPressed: () {
+
+                    if (_formKey.currentState!.validate()) {
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+
+                        const SnackBar(
+                          content: Text(
+                            'Registration Successful',
+                          ),
+                        ),
+                      );
+                    }
+                  },
                 ),
 
                 const SizedBox(height: 20),
@@ -178,6 +256,7 @@ class _RegisterScreenState
             ),
           ),
         ),
+      ),
       ),
     );
   }

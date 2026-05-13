@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'home_screen.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/custom_textfield.dart';
 
@@ -14,12 +14,14 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
 
+  final _formKey = GlobalKey<FormState>();
+
   final emailController = TextEditingController();
 
   final passwordController = TextEditingController();
 
   bool isPasswordHidden = true;
-
+  bool isLoading = false;
   @override
   Widget build(BuildContext context) {
 
@@ -30,119 +32,210 @@ class _LoginScreenState extends State<LoginScreen> {
         child: SingleChildScrollView(
 
           child: Padding(
+
             padding: const EdgeInsets.all(20),
 
-            child: Column(
+            child: Form(
 
-              children: [
+              key: _formKey,
 
-                const SizedBox(height: 50),
+              child: Column(
 
-                Image.asset(
-                  'assets/logo.jpg',
-                  height: 120,
-                ),
+                children: [
 
-                const SizedBox(height: 30),
+                  const SizedBox(height: 50),
 
-                const Text(
-                  'Login',
-                  style: TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
+                  Image.asset(
+                    'assets/logo.jpg',
+                    height: 120,
                   ),
-                ),
 
-                const SizedBox(height: 30),
+                  const SizedBox(height: 30),
 
-                CustomTextField(
-                  controller: emailController,
-                  hintText: 'Email',
-                  icon: Icons.email,
-                ),
+                  const Text(
+                    'Login',
+                    style: TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
 
-                const SizedBox(height: 20),
+                  const SizedBox(height: 30),
 
-                CustomTextField(
-                  controller: passwordController,
-                  hintText: 'Password',
-                  icon: Icons.lock,
-                  obscureText: isPasswordHidden,
+                  /// EMAIL FIELD
+                  CustomTextField(
 
-                  suffixIcon: IconButton(
+                    controller: emailController,
 
-                    onPressed: () {
+                    hintText: 'Email',
 
-                      setState(() {
-                        isPasswordHidden =
-                            !isPasswordHidden;
-                      });
+                    icon: Icons.email,
 
+                    validator: (value) {
+
+                      if (value == null || value.isEmpty) {
+                        return 'Email is required';
+                      }
+
+                      if (!value.contains('@') ||
+                          !value.contains('.')) {
+
+                        return 'Enter valid email';
+                      }
+
+                      return null;
+                    },
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  /// PASSWORD FIELD
+                  CustomTextField(
+
+                    controller: passwordController,
+
+                    hintText: 'Password',
+
+                    icon: Icons.lock,
+
+                    obscureText: isPasswordHidden,
+
+                    validator: (value) {
+
+                      if (value == null || value.isEmpty) {
+                        return 'Password required';
+                      }
+
+                      if (value.length < 6) {
+                        return 'Minimum 6 characters';
+                      }
+
+                      return null;
                     },
 
-                    icon: Icon(
-                      isPasswordHidden
-                          ? Icons.visibility_off
-                          : Icons.visibility,
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 10),
-
-                Align(
-                  alignment: Alignment.centerRight,
-
-                  child: TextButton(
-                    onPressed: () {},
-
-                    child: const Text(
-                      'Forgot Password?',
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 20),
-
-                CustomButton(
-                  text: 'Login',
-                  onPressed: () {},
-                ),
-
-                const SizedBox(height: 20),
-
-                Row(
-                  mainAxisAlignment:
-                      MainAxisAlignment.center,
-
-                  children: [
-
-                    const Text(
-                      "Don't have an account?",
-                    ),
-
-                    TextButton(
+                    suffixIcon: IconButton(
 
                       onPressed: () {
 
-                        Navigator.push(
-                          context,
+                        setState(() {
 
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                const RegisterScreen(),
-                          ),
-                        );
+                          isPasswordHidden =
+                          !isPasswordHidden;
+
+                        });
 
                       },
 
-                      child: const Text(
-                        'Register',
+                      icon: Icon(
+
+                        isPasswordHidden
+                            ? Icons.visibility_off
+                            : Icons.visibility,
                       ),
                     ),
-                  ],
-                ),
-              ],
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  /// FORGOT PASSWORD
+                  Align(
+
+                    alignment: Alignment.centerRight,
+
+                    child: TextButton(
+
+                      onPressed: () {},
+
+                      child: const Text(
+                        'Forgot Password?',
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  /// LOGIN BUTTON
+                 isLoading
+
+                ? const CircularProgressIndicator()
+
+                : CustomButton(
+
+                    text: 'Login',
+
+                    onPressed: () async {
+
+                      if (_formKey.currentState!.validate()) {
+
+                        setState(() {
+
+                          isLoading = true;
+
+                        });
+
+                        await Future.delayed(
+
+                          const Duration(seconds: 2),
+                        );
+
+                        setState(() {
+
+                          isLoading = false;
+
+                        });
+
+                        Navigator.push(
+
+                          context,
+
+                          MaterialPageRoute(
+
+                            builder: (context) =>
+                                const HomeScreen(),
+                          ),
+                        );
+                      }
+                    },
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  /// REGISTER NAVIGATION
+                  Row(
+
+                    mainAxisAlignment:
+                    MainAxisAlignment.center,
+
+                    children: [
+
+                      const Text(
+                        "Don't have an account?",
+                      ),
+
+                      TextButton(
+
+                        onPressed: () {
+
+                          Navigator.push(
+
+                            context,
+
+                            MaterialPageRoute(
+
+                              builder: (context) =>
+                              const RegisterScreen(),
+                            ),
+                          );
+                        },
+
+                        child: const Text(
+                          'Register',
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),
