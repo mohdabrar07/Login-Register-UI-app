@@ -27,9 +27,9 @@ class _RegisterScreenState
       TextEditingController();
 
   bool isPasswordHidden = true;
-
+  
   bool isConfirmPasswordHidden = true;
-
+  bool isLoading = false;
   @override
   Widget build(BuildContext context) {
 
@@ -208,23 +208,49 @@ class _RegisterScreenState
 
                 const SizedBox(height: 30),
 
-                CustomButton(
-                  text: 'Register',
-                  onPressed: () {
+                isLoading
 
-                    if (_formKey.currentState!.validate()) {
+                ? const CircularProgressIndicator()
 
-                      ScaffoldMessenger.of(context).showSnackBar(
+                : CustomButton(
 
-                        const SnackBar(
-                          content: Text(
-                            'Registration Successful',
+                    text: 'Register',
+
+                    onPressed: () async {
+
+                      if (_formKey.currentState!.validate()) {
+
+                        setState(() {
+
+                          isLoading = true;
+
+                        });
+
+                        await Future.delayed(
+
+                          const Duration(seconds: 2),
+                        );
+
+                        setState(() {
+
+                          isLoading = false;
+
+                        });
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+
+                          const SnackBar(
+
+                            content: Text(
+                              'Registration Successful',
+                            ),
                           ),
-                        ),
-                      );
-                    }
-                  },
-                ),
+                        );
+
+                        Navigator.pop(context);
+                      }
+                    },
+                  ),
 
                 const SizedBox(height: 20),
 
